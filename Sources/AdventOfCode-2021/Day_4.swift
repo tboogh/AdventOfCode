@@ -1,12 +1,11 @@
 public class Day_4 {
 
     func partOne(input: Day4Data) -> Int {
-
-        return playPartOne(data: input)
+        playPartOne(data: input)
     }
 
     func partTwo(input: Day4Data) -> Int {
-        return 0
+        playPartTwo(data: input)
     }
 }
 
@@ -24,14 +23,48 @@ private extension Day_4 {
         }
         return 0
     }
+
+    func playPartTwo(data: Day4Data) -> Int {
+        var winners: [Day4Data.BingoBoard] = []
+        var winningNumbers: [Int] = []
+        for number in data.numberSequnce {
+            print("Number: \(number)")
+            for bingoBoard in data.bingoBoards {
+                bingoBoard.checkNumber(number: number)
+                if bingoBoard.bingo && !winners.contains(where: { $0 == bingoBoard }) {
+                    winningNumbers.append(number)
+                    winners.append(bingoBoard)
+
+                }
+            }
+            if (winners.count == data.bingoBoards.count) {
+                break
+            }
+        }
+        
+        guard
+            let lastWinner = winners.last,
+            let lastNumber = winningNumbers.last
+        else {
+            return 0
+        }
+        return lastNumber * lastWinner.answer
+    }
 }
 
 public struct Day4Data {
 
-    public class BingoBoard {
+    public class BingoBoard: Equatable {
+
+        public static func == (lhs: Day4Data.BingoBoard, rhs: Day4Data.BingoBoard) -> Bool {
+            lhs.data == rhs.data &&
+            lhs.calcData == rhs.calcData &&
+            lhs.checkedNumbers == rhs.checkedNumbers
+        }
+
         init(data: [[Int]]) {
             self.data = data
-            self.checkedNumbers = Array(repeating: Array(repeating: 0, count: data.count), count: data.count)
+            self.checkedNumbers = Array(repeating: Array(repeating: -1, count: data.count), count: data.count)
             self.calcData = data
         }
 
@@ -58,12 +91,12 @@ public struct Day4Data {
 
         var bingo: Bool {
             for row in checkedNumbers {
-                if row.map({ $0 > 1 ? 1: 0 }).reduce(0, +) == 5 {
+                if row.map({ $0 >= 0 ? 1: 0 }).reduce(0, +) == 5 {
                     return true
                 }
             }
             for row in transpose(input: checkedNumbers) {
-                if row.map({ $0 > 1 ? 1: 0 }).reduce(0, +) == 5 {
+                if row.map({ $0 >= 0 ? 1: 0 }).reduce(0, +) == 5 {
                     return true
                 }
             }
@@ -87,8 +120,8 @@ public struct Day4Data {
             return result
         }
 
-        func debug() {
-            for row in checkedNumbers {
+        func debug(_ data: [[Int]]) {
+            for row in data {
                 print(row.reduce(into: "") { partialResult, value in
                     if value > 0 {
                         partialResult += "\(value) "
