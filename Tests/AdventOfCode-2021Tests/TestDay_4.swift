@@ -65,7 +65,10 @@ final class TestDay_4: XCTestCase {
     }
 
     func testComputePartTwo() {
-
+        let input = loadTest(filename: "Day4")
+        let day = Day_4()
+        let result = day.partTwo(input: Day4Data(data: input))
+        XCTAssertEqual(result, 4590)
     }
 }
 
