@@ -9,6 +9,6 @@ extension XCTestCase {
             assertionFailure("Could not load file \(filename)")
             return []
         }
-        return fileData.components(separatedBy: "\n")
+        return fileData.components(separatedBy: "\n").filter { !$0.isEmpty }
     }
 }

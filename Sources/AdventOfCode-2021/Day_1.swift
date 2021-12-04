@@ -1,4 +1,4 @@
-public class DayOne{
+public class Day_1{
     
     func partOne(input: [Int]) -> Int? {
         var increases = 0
@@ -10,7 +10,23 @@ public class DayOne{
         }
         return increases
     }
-    
+
+
+    /*
+     0 1 2 3 4 5 6 7
+     0  A
+     1  A B
+     2  A B C
+     3    B C D
+     4      C D E
+     5        D E F
+     6          E F G
+     7            F G H
+     8              G H
+     9                H
+     */
+
+
     func partTwo(input: [Int]) -> Int? {
         var increases = 0
         var windows = Array(repeating: 0, count: input.count)
@@ -40,17 +56,3 @@ public class DayOne{
         return max(0, lowerIndex)
     }
 }
-
-/*
-   0 1 2 3 4 5 6 7
-0  A
-1  A B
-2  A B C
-3    B C D
-4      C D E
-5        D E F
-6          E F G
-7            F G H
-8              G H
-9                H
-*/
