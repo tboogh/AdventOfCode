@@ -7,7 +7,7 @@ final class TestDay_Template: XCTestCase {
         let input: [Int] = []
         let day = Day_Template()
         let result = day.partOne(input: input)
-        XCTAssertEqual(result, 7)
+        XCTAssertEqual(result, 0)
     }
 
     func testComputePartOne() {
