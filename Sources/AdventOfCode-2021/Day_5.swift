@@ -14,11 +14,11 @@ public class Day_5 {
     private let graph: Graph
 
     func partOne() -> Int {
-        return graph.computeAnswer()
+        return graph.computeAnswer(includedDiagonal: false)
     }
 
     func partTwo() -> Int {
-        return 0
+        return graph.computeAnswer(includedDiagonal: true)
     }
 }
 
@@ -50,30 +50,60 @@ class Graph {
     private var graph: [[Int]]
     private let lines: [Line]
 
-    public func computeAnswer() -> Int {
+    public func computeAnswer(includedDiagonal: Bool) -> Int {
         for line in lines {
-            if !line.isHorizontal && !line.isVertical {
-                continue
-            }
-            let minX = min(line.start.x, line.end.x)
-            let maxX = max(line.start.x, line.end.x)
-            let minY = min(line.start.y, line.end.y)
-            let maxY = max(line.start.y, line.end.y)
-
-            for x in minX...maxX {
-                for y in minY...maxY {
-                    graph[y][x] += 1
-
+            if includedDiagonal {
+                if !line.isHorizontal &&
+                    !line.isVertical &&
+                    !line.isDiagonal
+                {
+                    continue
                 }
+            } else {
+                if !line.isHorizontal && !line.isVertical {
+                    continue
+                }
+            }
+
+            if line.isDiagonal {
+                drawDiagonalLine(line: line)
+            } else {
+                drawVerticalOrHorizontalLine(line: line)
             }
         }
         return graph.flatMap { $0 }.filter { $0 > 1 }.count
     }
 
+    func drawDiagonalLine(line: Line) {
+        let sortedPoints = [line.start, line.end].sorted { $0.x < $1.x }
+        let minP = sortedPoints[0]
+        let maxP = sortedPoints[1]
+        
+        let dx = maxP.x - minP.x
+        let dy = maxP.y - minP.y
+
+        for x in minP.x...maxP.x {
+            let y = minP.y + dy * (x - minP.x) / dx
+            graph[y][x] += 1
+        }
+    }
+
+    func drawVerticalOrHorizontalLine(line: Line){
+        let minX = min(line.start.x, line.end.x)
+        let maxX = max(line.start.x, line.end.x)
+        let minY = min(line.start.y, line.end.y)
+        let maxY = max(line.start.y, line.end.y)
+        for x in minX...maxX {
+            for y in minY...maxY {
+                graph[y][x] += 1
+            }
+        }
+    }
+
     func debugPrint(graph: [[Int]]) {
         for rowindex in 0..<graph.count {
             let row = graph[rowindex]
-            print("\(row.reduce("") { $0 + "\($1)" })")
+            print("\(row.reduce("") { $0 + ($1 == 0 ? "." : "\($1)") })")
         }
     }
 }
@@ -111,5 +141,11 @@ struct Line {
 
     var isVertical: Bool {
         start.x == end.x
+    }
+
+    var isDiagonal: Bool {
+        let xDiff = abs(end.x - start.x)
+        let yDiff = abs(end.y - start.y)
+        return xDiff == yDiff
     }
 }
