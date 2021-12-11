@@ -90,3 +90,5 @@ fastlane/test_output
 iOSInjectionProject/
 
 */.DS_Store
+
+Tests/AdventOfCode-2021Tests/.DS_Store
