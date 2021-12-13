@@ -30,15 +30,28 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 
     func testExamplePartTwo() {
         let input = """
-be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
+acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf
 """
         let day = Day_8()
         let result = day.partTwo(input: input)
         XCTAssertEqual(result, 5353)
     }
 
-    func testComputePartTwo() {
+    func testFailingPartTwo() {
+        let input = """
+bgafcde gfcd agc ebdgac adfceb bafeg efgca cgdfae cg ecadf | fabgced gc agc cdfg
+"""
+        let day = Day_8()
+        let result = day.partTwo(input: input)
+        XCTAssertEqual(result, 8174)
+    }
 
+    func testComputePartTwo() {
+        let input = loadTest(filename: "Day8").trimmingCharacters(in: .newlines)
+        let day = Day_8()
+        let result = day.partTwo(input: input)
+        // too low 461738
+        XCTAssertEqual(result, 994266)
     }
 }
 
