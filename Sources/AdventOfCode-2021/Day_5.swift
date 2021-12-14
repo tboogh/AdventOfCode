@@ -8,10 +8,10 @@ public class Day_5 {
             .drop { $0.isEmpty }
             .map { $0.components(separatedBy: " -> ") }
             .compactMap { Line(input: $0) }
-        graph = Graph(lines: lines)
+        graph = Day5Grid(lines: lines)
     }
 
-    private let graph: Graph
+    private let graph: Day5Grid
 
     func partOne() -> Int {
         return graph.computeAnswer(includedDiagonal: false)
@@ -22,7 +22,7 @@ public class Day_5 {
     }
 }
 
-class Graph {
+class Day5Grid {
 
     init(lines: [Line]) {
 
