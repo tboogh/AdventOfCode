@@ -1,10 +1,11 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.7
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "AdventOfCode",
+    platforms: [.macOS(.v13)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -30,6 +31,18 @@ let package = Package(
             name: "AdventOfCode-2021Tests",
             dependencies: ["AdventOfCode-2021"],
             path: "2021/Tests",
+            resources: [
+                .process("Data")
+            ]
+        ),
+        .target(
+            name: "AdventOfCode-2022",
+            dependencies: ["AdventOfCodeCommon"],
+            path: "2022/Sources"),
+        .testTarget(
+            name: "AdventOfCode-2022Tests",
+            dependencies: ["AdventOfCode-2022"],
+            path: "2022/Tests",
             resources: [
                 .process("Data")
             ]
