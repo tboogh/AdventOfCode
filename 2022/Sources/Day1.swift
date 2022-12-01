@@ -4,30 +4,25 @@ public struct Day1 {
 
     public init() {}
 
-    public func part1(input: String) -> Int {
-        let inputSets = input.split(separator: "\n\n")
+    private func caloriesPerElf(input: String) -> [Int] {
+        let caloriesPerElf = input.split(separator: "\n\n")
             .map {
-                $0.split(separator: "\n")
+                $0.split(whereSeparator: \.isNewline)
                     .compactMap { Int($0) }
-                    .reduce(into: 0, { $0 += $1 })
+                    .reduce(0, +)
             }
+            .sorted()
+        return caloriesPerElf
+    }
 
-        return inputSets.max() ?? -1
+    public func part1(input: String) -> Int {
+        return caloriesPerElf(input: input).last ?? -1
     }
 
     public func part2(input: String) -> Int {
-        let inputSets = input.split(separator: "\n\n")
-            .map {
-                $0.split(separator: "\n")
-                    .compactMap { Int($0) }
-                    .reduce(into: 0, { $0 += $1 })
-            }
-
-        return inputSets
-            .sorted()
-            .reversed()
-            .prefix(3)
-            .reduce(into: 0, { $0 += $1 })
+        return caloriesPerElf(input: input)
+            .suffix(3)
+            .reduce(0, +)
 
     }
 }
