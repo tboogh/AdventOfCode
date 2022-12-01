@@ -1,4 +1,4 @@
-extension String {
+public extension String {
 
     var rows: [String] {
         self

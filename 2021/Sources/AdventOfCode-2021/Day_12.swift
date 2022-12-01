@@ -1,9 +1,10 @@
-import AppKit
+import AdventOfCodeCommon
+
 public class Day_12 {
 
     func partOne(input: String) -> Int {
         let graph = createGraph(input: input.rows)
-        let visitor = CaveVisitor()
+        let visitor: GraphVisitor<String> = GraphVisitor()
 
         guard
             let start = graph.rootNode,
@@ -26,7 +27,7 @@ public class Day_12 {
             let parentNode = graph.getOrCreateNode(value: parentValue)
             let node = graph.getOrCreateNode(value: nodeValue)
             graph.connect(node: node, parent: parentNode)
-            graph.setRootNode(node: parentNode)
+            graph.setRootNodeIfNeeded(node: parentNode)
         }
         return graph
     }
@@ -40,13 +41,8 @@ public class Day_12 {
 
 class CaveVisitor: GraphVisitor<String> {
 
-
-    override func canVisit(index: Int, nodes: [Node<String>], visited: [Bool]) -> Bool {
-        let node = nodes[index]
-        if node.value.isLowercase && visited[index] {
-            return false
-        }
-        return true
+    override func canVisit(_ node: Node<String>) -> Bool {
+        return node.value.isUpperCase
     }
 }
 
@@ -55,69 +51,19 @@ class GraphVisitor<Value: Equatable & Hashable> {
     typealias Path = [Node<Value>]
 
     func findPaths(start: Node<Value>, end: Node<Value>, nodes: [Node<Value>]) -> [Path]{
-        guard let startIndex = nodes.firstIndex(of: start),
-              let endIndex = nodes.firstIndex(of: end)
-        else {
-            assertionFailure("Missing start or end node in nodes array")
-            return []
-        }
-        var count = 0
         var paths = [Path]()
-        var visited = Array(repeating: false, count: nodes.count)
-        visit(nodeIndex: startIndex,
-              endIndex: endIndex,
-              nodes: nodes,
-              count: &count,
-              visited: &visited,
-              paths: &paths)
-        return paths
-    }
-
-    func visit(nodeIndex: Int,
-               endIndex: Int,
-               nodes: [Node<Value>],
-               count: inout Int,
-               visited: inout [Bool],
-               paths: inout [Path]) {
-        visited[nodeIndex] = true
-        appendToPath(index: nodeIndex,
-                     nodes: nodes,
-                     paths: &paths,
-                     count: count)
-        if nodeIndex == endIndex {
-            count += 1
-        } else {
-            for connection in nodes[nodeIndex].connections {
-                guard
-                    let connectionIndex = nodes.firstIndex(of: connection),
-                    canVisit(index: connectionIndex, nodes: nodes, visited: visited)
-                else {
-                    continue
-                }
-                visit(nodeIndex: connectionIndex,
-                      endIndex: endIndex,
-                      nodes: nodes,
-                      count: &count,
-                      visited: &visited,
-                      paths: &paths)
+        var visitedEdges = [Edge<Value>]()
+        var currentNode: Node<Value>? = start
+        while let node = currentNode {
+            for edge in node.edges {
+                if visitedEdges.contains(edge) && canVisit(edge.end) { continue }
+                currentNode = edge.end
             }
         }
-        visited[nodeIndex] = false
+        return []
     }
 
-    func appendToPath(index: Int, nodes: [Node<Value>], paths: inout [Path], count: Int) {
-        let node = nodes[index]
-        if paths.count <= count {
-            paths.append(Path())
-        }
-        var path = paths[count]
-        path.append(node)
-        paths[count] = path
-    }
-
-    func canVisit(index: Int, nodes: [Node<Value>], visited: [Bool]) -> Bool {
-        return true
-    }
+    open func canVisit(_ node: Node<Value>) -> Bool { true }
 }
 
 typealias CaveGraph = Graph<String>
@@ -131,7 +77,7 @@ class Graph<Value: Equatable & Hashable> {
         return getOrCreateNode(value: value)
     }
 
-    func setRootNode(node: Node<Value>) {
+    func setRootNodeIfNeeded(node: Node<Value>) {
         guard rootNode == nil else {
             return
         }
@@ -140,8 +86,8 @@ class Graph<Value: Equatable & Hashable> {
     }
 
     func connect(node: Node<Value>, parent: Node<Value>) {
-        parent.connections.append(node)
-        node.connections.append(parent)
+        parent.edges.append(Edge(start: parent, end: node))
+        node.edges.append(Edge(start: node, end: parent))
     }
 
     func getOrCreateNode(value: Value) -> Node<Value> {
@@ -159,12 +105,13 @@ class Graph<Value: Equatable & Hashable> {
 }
 
 class Node<Value: Equatable & Hashable>: Hashable {
+
     init(value: Value) {
         self.value = value
     }
 
     let value: Value
-    var connections: [Node<Value>] = []
+    var edges: [Edge<Value>] = []
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(value)
@@ -173,5 +120,30 @@ class Node<Value: Equatable & Hashable>: Hashable {
     static func == (lhs: Node, rhs: Node) -> Bool {
         lhs.value == rhs.value
     }
+}
+
+class Edge<Value: Equatable & Hashable>: Hashable {
+    init(start: Node<Value>, end: Node<Value>) {
+        self.start = start
+        self.end = end
+    }
+
+    let start: Node<Value>
+    let end: Node<Value>
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(start.value)
+        hasher.combine(end.value)
+    }
+
+    static func == (lhs: Edge, rhs: Edge) -> Bool {
+        lhs.start.value == rhs.start.value &&
+        lhs.end.value == rhs.end.value
+    }
+}
+
+extension String {
+
+    var isUpperCase: Bool { !isLowercase }
 }
 

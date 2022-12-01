@@ -1,5 +1,5 @@
 import XCTest
-@testable import AdventOfCode_2021
+//@testable import AdventOfCode_2021
 
 final class TestDay_Template: XCTestCase {
 

@@ -13,7 +13,7 @@ final class TestDay_11: XCTestCase {
 """
         let day = Day_11()
         let result = day.partOne(input: input)
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 9)
     }
 
     func testExamplePartOne() {

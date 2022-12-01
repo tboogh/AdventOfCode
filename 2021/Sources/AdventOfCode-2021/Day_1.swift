@@ -1,6 +1,7 @@
 public class Day_1{
     
     func partOne(input: [Int]) -> Int? {
+        
         var increases = 0
         for index in 0..<input.count {
             if index == 0 {
