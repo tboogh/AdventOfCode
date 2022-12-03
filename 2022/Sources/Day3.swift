@@ -11,7 +11,7 @@ public struct Day3 {
     public static func partOne(input: [String]) -> Int {
         let result = input
             .splitRucksackContentsIntoCompartments()
-            .filterItemsPresentInBothCompartments()
+            .mapItemsToCharacters()
             .mapCharacterToValue()
             .sum()
 
@@ -21,7 +21,7 @@ public struct Day3 {
     public static func partTwo(input: [String]) -> Int {
         let result = input
             .chunked(into: 3)
-            .filterItemsPresentInAll()
+            .mapItemsToCharacters()
             .mapCharacterToValue()
             .sum()
         return result
@@ -34,16 +34,6 @@ private extension Array {
         return stride(from: 0, to: count, by: size).map {
             Array(self[$0 ..< Swift.min($0 + size, count)])
         }
-    }
-}
-
-private extension String {
-
-    func splitContentsIntoCompartments() -> (String, String) {
-        let midIndex = index(startIndex, offsetBy: count/2)
-        let first = String(self[..<midIndex])
-        let second = String(self[midIndex...])
-        return (first, second)
     }
 }
 
@@ -66,18 +56,18 @@ private extension Sequence where Element == Character {
 
 private extension Sequence where Element == [String] {
 
-    func filterItemsPresentInAll() -> [Character] {
-        self.flatMap { $0.filterItemsToBadges() }
+    func mapItemsToCharacters() -> [Character] {
+        self.flatMap { $0.mapItemsToCharacters() }
     }
 }
 
 private extension Sequence where Element == String {
 
-    func splitRucksackContentsIntoCompartments() -> [(String, String)] {
+    func splitRucksackContentsIntoCompartments() -> [[String]] {
         self.map { $0.splitContentsIntoCompartments() }
     }
 
-    func filterItemsToBadges() -> [Character] {
+    func mapItemsToCharacters() -> [Character] {
         let result = self.map { Set($0) }
             .reduce(into: Set<Character>(), { partialResult, next in
                 if partialResult.isEmpty {
@@ -91,14 +81,12 @@ private extension Sequence where Element == String {
     }
 }
 
-private extension Sequence where Element == (String, String) {
+private extension String {
 
-    func filterItemsPresentInBothCompartments() -> [Character] {
-        self.flatMap {
-            let first = Set($0.0)
-            let second = Set($0.1)
-            let result = first.intersection(second)
-            return result
-        }
+    func splitContentsIntoCompartments() -> [String] {
+        let midIndex = index(startIndex, offsetBy: count/2)
+        let first = String(self[..<midIndex])
+        let second = String(self[midIndex...])
+        return [first, second]
     }
 }
