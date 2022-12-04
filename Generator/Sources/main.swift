@@ -90,18 +90,21 @@ try FileManager.default.createDirectory(at: sourcePath, withIntermediateDirector
 try FileManager.default.createDirectory(at: testPath, withIntermediateDirectories: true)
 try FileManager.default.createDirectory(at: testDataPath, withIntermediateDirectories: true)
 
-let sourceResult = FileManager.default.createFile(atPath: sourceDayPath.relativePath, contents: dayOutput.data(using: .utf8))
-let testResult = FileManager.default.createFile(atPath: testDayPath.relativePath, contents: testOutput.data(using: .utf8))
-let testDataResult = FileManager.default.createFile(atPath: testDataDayPath.relativePath, contents: "".data(using: .utf8))
-
-if !sourceResult {
-    print("Failed to create source file at \(sourceDayPath.relativePath)")
+if !FileManager.default.fileExists(atPath: sourceDayPath.relativePath) {
+    let sourceResult = FileManager.default.createFile(atPath: sourceDayPath.relativePath, contents: dayOutput.data(using: .utf8))
+    if !sourceResult {
+        print("Failed to create source file at \(sourceDayPath.relativePath)")
+    }
 }
-
-if !testResult {
-    print("Failed to create source file at \(testDayPath.relativePath)")
+if !FileManager.default.fileExists(atPath: testDayPath.relativePath) {
+    let testResult = FileManager.default.createFile(atPath: testDayPath.relativePath, contents: testOutput.data(using: .utf8))
+    if !testResult {
+        print("Failed to create source file at \(testDayPath.relativePath)")
+    }
 }
-
-if !testDataResult {
-    print("Failed to create source file at \(testDataDayPath.relativePath)")
+if !FileManager.default.fileExists(atPath: testDataDayPath.relativePath) {
+    let testDataResult = FileManager.default.createFile(atPath: testDataDayPath.relativePath, contents: "".data(using: .utf8))
+    if !testDataResult {
+        print("Failed to create source file at \(testDataDayPath.relativePath)")
+    }
 }
