@@ -28,22 +28,6 @@ public struct Day3 {
     }
 }
 
-private extension Array {
-
-    func chunked(into size: Int) -> [[Element]] {
-        return stride(from: 0, to: count, by: size).map {
-            Array(self[$0 ..< Swift.min($0 + size, count)])
-        }
-    }
-}
-
-private extension Sequence where Element == Int {
-
-    func sum() -> Int {
-        self.reduce(0, +)
-    }
-}
-
 private extension Sequence where Element == Character {
 
     func mapCharacterToValue() -> [Int] {
