@@ -8,6 +8,7 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
+        .executable(name: "Generator", targets: ["Generator"]),
         .library(
             name: "AdventOfCode-2021",
             targets: ["AdventOfCode-2021"]),
@@ -17,12 +18,18 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
+        .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(name: "AdventOfCodeCommon",
                 path: "Common/Sources"),
+        .executableTarget(name: "Generator",
+                dependencies: [
+                    .product(name: "CommandLineKit", package: "swift-commandlinekit")
+                ],
+                path: "Generator/Sources"),
         .target(
             name: "AdventOfCode-2021",
             dependencies: ["AdventOfCodeCommon"],
