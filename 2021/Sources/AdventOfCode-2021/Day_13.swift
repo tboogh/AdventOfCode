@@ -1,7 +1,7 @@
 public class Day_13 {
 
     func partOne(input: String) -> Int {
-        let lines = input.rows
+        let lines = input.lines
         let dataRows = lines.filter { $0.starts(with: "fold") == false }
         let foldRows = lines.filter { $0.starts(with: "fold") == true }
 
@@ -15,7 +15,7 @@ public class Day_13 {
     }
 
     func partTwo(input: String) -> Int {
-        let lines = input.rows
+        let lines = input.lines
         let dataRows = lines.filter { $0.starts(with: "fold") == false }
         let foldRows = lines.filter { $0.starts(with: "fold") == true }
 

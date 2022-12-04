@@ -7,7 +7,7 @@ public class DataLoader {
             assertionFailure("Could not load file at \(fileUrl)")
             return []
         }
-        return fileData.components(separatedBy: "\n").filter { !$0.isEmpty }
+        return fileData.lines
     }
 
     public static func loadTest(fileUrl: URL) -> String {

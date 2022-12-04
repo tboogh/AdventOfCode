@@ -1,6 +1,6 @@
 public extension String {
 
-    var rows: [String] {
+    var lines: [String] {
         self
             .components(separatedBy: .newlines)
             .filter { $0.count > 0 }

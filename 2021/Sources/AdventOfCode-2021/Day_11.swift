@@ -1,13 +1,13 @@
 public class Day_11 {
 
     func partOne(input: String, iterations: Int = 2) -> Int {
-        let rows = input.rows
+        let rows = input.lines
         let data = rows.map { $0.compactMap { Int(String($0)) } }
         return simulate(iterations, data: data)
     }
 
     func partTwo(input: String) -> Int {
-        let rows = input.rows
+        let rows = input.lines
         let data = rows.map { $0.compactMap { Int(String($0)) } }
         return simulateSynchronize(500, data: data)
     }

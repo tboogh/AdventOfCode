@@ -9,7 +9,7 @@ public class Day_14 {
     }
 
     func compute(input: String, iteration: Int) -> Int {
-        let rows = input.rows
+        let rows = input.lines
         let templateRow = rows[0]
         let pairInsertionRuleRows = rows.dropFirst().map{ Rule(input: $0) }
 

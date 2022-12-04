@@ -3,7 +3,7 @@ import AdventOfCodeCommon
 public class Day_12 {
 
     func partOne(input: String) -> Int {
-        let graph = createGraph(input: input.rows)
+        let graph = createGraph(input: input.lines)
         let visitor: GraphVisitor<String> = GraphVisitor()
 
         guard
