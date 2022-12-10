@@ -8,7 +8,8 @@ public struct Day9 {
 
         let tailPositions = moves
             .computeHeadPostions()
-            .computeTailPositions()
+            .computeTailPositions(numberOfTails: 1)
+            .first!
         let size = tailPositions.size()
         let uniqueTailPositions = Set(tailPositions)
         tailPositions.printPositions(gridSize: size)
@@ -16,14 +17,43 @@ public struct Day9 {
     }
 
     public static func partTwo(input: [String]) -> Int {
-        return -1
+        let moves = input.parseToMoves()
+
+        let headPositions = moves
+            .computeHeadPostions()
+        let tailPositions = headPositions
+            .computeTailPositions(numberOfTails: 10)
+        let size = headPositions.size()
+//        tailPositions.printPositions(gridSize: size, symbol: "#")
+        let uniqueTailPositions = Set(tailPositions)
+
+        return uniqueTailPositions.count
     }
 }
 
 private struct Size {
 
-    let width: Int
-    let height: Int
+    let minX: Int
+    let maxX: Int
+    let minY: Int
+    let maxY: Int
+    
+    var width: Int {
+        let width = maxX - minX
+        return width + 1
+    }
+    var height: Int {
+        let height = maxY - minY
+        return height + 1
+    }
+
+    var offsetX: Int {
+        abs(minX)
+    }
+
+    var offsetY: Int {
+        abs(minY)
+    }
 }
 
 private enum Move {
@@ -53,64 +83,70 @@ private struct Position: Hashable, CustomDebugStringConvertible {
 
 private extension Array where Element == Position {
 
-    func computeTailPositions() -> [Position] {
-        var tailPosition = Position(x: 0, y: 0)
-        var tailPositions = [tailPosition]
+    func computeTailPositions(numberOfTails: Int) -> [[Position]] {
+        var tailPositionsCollection = (0..<numberOfTails).map { _ in [Position(x: 0, y: 0)] }
         for headPosition in self {
-            let diff = headPosition - tailPosition
-//            print("h: \(headPosition) t:\(tailPosition) m:\(diff.magnitude)")
-            if diff.x == 0 && diff.y == 0 {
+            let position = headPosition
+            for tailIndex in 0..<numberOfTails {
+                var tailPositions = tailPositionsCollection[tailIndex]
+                var tailPosition = tailPositions.last!
+                tailPosition = tailPosition.computeNextPosition(previousPosition: position)
                 tailPositions.append(tailPosition)
-                continue
+                tailPositionsCollection[tailIndex] = tailPositions
             }
-            if diff.magnitude <= 1.0 {
-                tailPositions.append(tailPosition)
-                continue
-            }
-            //            print(diff.magnitude)
-            if diff.x == 0 {
-                // Straight vertical move
-                tailPosition = Position(x: tailPosition.x, y: tailPosition.y + diff.y.signum())
-                tailPositions.append(tailPosition)
-                continue
-            }
-            if diff.y == 0 {
-                // Straight horizontal move
-                tailPosition = Position(x: tailPosition.x + diff.x.signum(), y: tailPosition.y)
-                tailPositions.append(tailPosition)
-                continue
-            }
-            if abs(diff.x) == 1 && abs(diff.y) == 1 {
-                tailPositions.append(tailPosition)
-                continue
-            } else {
-                let xMove = diff.x.clamped(to: -1...1)
-                let yMove = diff.y.clamped(to: -1...1)
-                tailPosition = Position(x: tailPosition.x + xMove,
-                                        y: tailPosition.y + yMove)
-            }
-            tailPositions.append(tailPosition)
         }
-        return tailPositions
+        return tailPositionsCollection
     }
 
     func size() -> Size {
-        var width = 0
-        var height = 0
+        var minX = 0
+        var maxX = 0
+        var minY = 0
+        var maxY = 0
+
         for position in self {
-            width = Swift.max(width, position.x)
-            height = Swift.max(height, position.y)
+            minX = Swift.min(minX, position.x)
+            maxX = Swift.max(maxX, position.x)
+            minY = Swift.min(minY, position.y)
+            maxY = Swift.max(maxY, position.y)
         }
-        return Size(width: width + 1, height: height + 1)
+        return Size(minX: minX,
+                    maxX: maxX,
+                    minY: minY,
+                    maxY: maxY)
+    }
+}
+
+private extension Position {
+
+    func computeNextPosition(previousPosition: Position) -> Position {
+        let diff = previousPosition - self
+        if diff.x == 0 && diff.y == 0 ||
+            diff.magnitude <= 1.0 ||
+            abs(diff.x) == 1 && abs(diff.y) == 1 {
+            return self
+        }
+        if diff.x == 0 {
+            return Position(x: self.x, y: self.y + diff.y.signum())
+        }
+        if diff.y == 0 {
+            return Position(x: self.x + diff.x.signum(), y: self.y)
+        }
+        let xMove = diff.x.clamped(to: -1...1)
+        let yMove = diff.y.clamped(to: -1...1)
+        return Position(x: self.x + xMove,
+                                y: self.y + yMove)
     }
 }
 
 private extension Sequence where Element == Position {
 
-    func printPositions(gridSize: Size) {
+    func printPositions(gridSize: Size, symbol: String = "#") {
         var grid = Array(repeating: Array(repeating: ".", count: gridSize.width), count: gridSize.height)
         for position in self {
-            grid[position.y][position.x] = "#"
+            let x = gridSize.offsetX + position.x
+            let y = gridSize.offsetY + position.y
+            grid[y][x] = symbol
         }
         let printGrid = grid.reversed()
         for row in printGrid {

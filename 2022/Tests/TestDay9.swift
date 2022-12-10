@@ -30,6 +30,14 @@ final class TestDay9: XCTestCase {
 
     func testPart2_intro() {
         let data = """
+                   R 5
+                   U 8
+                   L 8
+                   D 3
+                   R 17
+                   D 10
+                   L 25
+                   U 20
                    """.components(separatedBy: "\n")
 
         let result = Day9.partTwo(input: data)
