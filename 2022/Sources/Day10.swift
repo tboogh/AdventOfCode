@@ -10,7 +10,7 @@ public struct Day10 {
 //        processor.cycle(count: 5)
         let result = processor.cycleProgram()
         result.prettyPrint()
-        return processor.registries[0]
+        return processor.registry
     }
 
     public static func partOne(input: [String]) -> Int {
@@ -27,15 +27,15 @@ public struct Day10 {
     }
 }
 
-private extension Dictionary where Key == Int, Value == [Int] {
+private extension Dictionary where Key == Int, Value == Int {
 
     func calculateSignalStrength() -> Int {
-        let values = self.map { ($0.key, $0.value.sum()) }.map { $0 * $1 }
+        let values = self.map { ($0.key, $0.value) }.map { $0 * $1 }
         return values.sum()
     }
 
     func prettyPrint() {
-        let pairs = self.map { ($0.key, $0.value.map { String($0) }.joined())}.sorted { $0.0 < $1.0 }
+        let pairs = self.map { ($0.key, $0.value)}.sorted { $0.0 < $1.0 }
         print(pairs.map { "\($0): \($1)"}.joined(separator: "\n"))
     }
 }
@@ -66,14 +66,10 @@ private enum Instruction {
 
 private class Processor {
 
-    init(registries: [Int] = [1]) {
-        self.registries = registries
-    }
-
     private(set) var currentCycle: Int = 0
-    private(set) var registries: [Int]
+    private(set) var registry: Int = 1
 
-    private var timelines: [[Instruction]] = []
+    private var timeline: [Instruction] = []
 
     func addInstructionsToTimeline(instructions: [Instruction]) {
         let noops = instructions.filter {
@@ -94,19 +90,18 @@ private class Processor {
                 break
             case .noop:
                 index += 1
-//                timelineInstructions.append(.noop)
             }
         }
-        timelines.append(timelineInstructions)
+        timeline = timelineInstructions
     }
 
-    func cycleProgram(firstSample: Int = 20, sampleInterval: Int = 40) -> [Int: [Int]] {
-        var samples = [Int: [Int]]()
-        let cycleCount = timelines[0].count
+    func cycleProgram(firstSample: Int = 20, sampleInterval: Int = 40) -> [Int: Int] {
+        var samples = [Int: Int]()
+        let cycleCount = timeline.count
         var nextSample = firstSample
         for cycle in 0..<cycleCount {
             if cycle == nextSample - 1 {
-                samples[cycle + 1] = registries
+                samples[cycle + 1] = registry
                 nextSample = nextSample + sampleInterval
             }
             self.performCycle()
@@ -123,18 +118,13 @@ private class Processor {
     func performCycle() {
         let current = currentCycle
         currentCycle += 1
-        for timeline in timelines.enumerated() {
-            let timelineCycleInstruction = timeline.element[current]
-            let currentValue = registries[timeline.offset]
-            switch timelineCycleInstruction {
-            case .noop:
-                print("\(current): .noop \(currentValue)")
-            case .addx(let value):
-                let currentValue = registries[timeline.offset]
-                let nextValue = currentValue + value
-                print("\(current): .addx \(value) \(currentValue)=>\(nextValue)")
-                registries[timeline.offset] = nextValue
-            }
+        let timelineCycleInstruction = timeline[current]
+        switch timelineCycleInstruction {
+        case .noop: break
+        case .addx(let value):
+            let currentValue = registry
+            let nextValue = currentValue + value
+            registry = nextValue
         }
     }
 }
