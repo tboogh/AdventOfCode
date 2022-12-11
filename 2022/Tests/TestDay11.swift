@@ -80,7 +80,7 @@ final class TestDay11: XCTestCase {
 
         let result = Day11.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 2713310158)
     }
 
     func testPart2_data() {
@@ -88,6 +88,6 @@ final class TestDay11: XCTestCase {
 
         let result = Day11.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 25738411485)
     }
 }

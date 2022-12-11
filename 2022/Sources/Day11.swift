@@ -8,47 +8,50 @@ public struct Day11 {
     public static func partOne(input: String) -> Int {
         let monkeys = input.parseToNotes()
         let processor = MonkeyProcessor()
-        let inspections = processor.processRounds(monkeys: monkeys, rounds: 20, worryLevelDivisor: 3)
+        let inspections = processor.processRounds(monkeys: monkeys, rounds: 20, worryLevelDivisor: 3, modulu: Int.max)
         return inspections[0] * inspections[1]
     }
 
     public static func partTwo(input: String) -> Int {
         let monkeys = input.parseToNotes()
+        let leastCommon = monkeys.map { $0.test.divisibleBy }.reduce(into: 1) { partialResult, next in
+            partialResult = partialResult * next
+        }
         let processor = MonkeyProcessor()
-        let inspections = processor.processRounds(monkeys: monkeys, rounds: 10_000, worryLevelDivisor: 1)
+        let inspections = processor.processRounds(monkeys: monkeys, rounds: 10_000, worryLevelDivisor: 1, modulu: leastCommon)
         return inspections[0] * inspections[1]
     }
 }
 
 private class MonkeyProcessor {
 
-    func processRounds(monkeys: [Monkey], rounds: Int, worryLevelDivisor: Int) -> [Int] {
+    func processRounds(monkeys: [Monkey], rounds: Int, worryLevelDivisor: Int, modulu: Int) -> [Int] {
         for _ in 0..<rounds {
-            processRound(monkeys: monkeys, worryLevelDivisor: worryLevelDivisor)
+            processRound(monkeys: monkeys,
+                         worryLevelDivisor: worryLevelDivisor,
+                         modulu: modulu)
         }
         return monkeys.map { $0.inspections }.sorted().reversed()
     }
 
-    func processRound(monkeys: [Monkey], worryLevelDivisor: Int) {
+    func processRound(monkeys: [Monkey], worryLevelDivisor: Int, modulu: Int) {
         for monkey in monkeys.enumerated() {
-            print("Monkey \(monkey.offset):")
-            let results = processMonkey(monkey: monkey.element, worryLevelDivisor: worryLevelDivisor)
+//            print("Monkey \(monkey.offset):")
+            let results = processMonkey(monkey: monkey.element,
+                                        worryLevelDivisor: worryLevelDivisor,
+                                        modulu: modulu)
             for result in results {
                 monkeys[result.monkeyIndex].addItem(item: result.item)
             }
         }
     }
 
-    func processMonkey(monkey: Monkey, worryLevelDivisor: Int) -> [ProcessMonkeyResult]{
+    func processMonkey(monkey: Monkey, worryLevelDivisor: Int, modulu: Int) -> [ProcessMonkeyResult]{
         var results = [ProcessMonkeyResult]()
         for item in monkey.items {
-            print("  Monkey inspects an item with a worry level of \(item)")
             monkey.inspect()
-            monkey.operation.prettyPrint(old: item)
-            let newItemValue = monkey.operation.perform(old: item) / Int(worryLevelDivisor)
-            print("    Monkey gets bored with item. Worry level is divided by 3 to \(newItemValue).")
+            let newItemValue = (monkey.operation.perform(old: item) / Int(worryLevelDivisor)) % modulu
             let testResult = monkey.test.performTest(value: newItemValue)
-            print("    Item with worry level \(newItemValue) is thrown to monkey \(testResult).")
             let result = ProcessMonkeyResult(monkeyIndex: testResult, item: newItemValue)
             results.append(result)
         }
@@ -78,7 +81,7 @@ private extension String {
             .replacing(" ", with: "")
             .components(separatedBy: ",")
             .compactMap { Int($0) }
-        print("StartingItems: \(startingItems)")
+//        print("StartingItems: \(startingItems)")
         return startingItems
     }
 
@@ -235,10 +238,10 @@ private struct Test {
 
     func performTest(value: Int) -> Int {
         if value.isMultiple(of: divisibleBy) {
-            print("    Current worry level is divisible by \(divisibleBy).")
+//            print("    Current worry level is divisible by \(divisibleBy).")
             return trueMonkey
         } else {
-            print("    Current worry level is not divisible by \(divisibleBy).")
+//            print("    Current worry level is not divisible by \(divisibleBy).")
             return falseMonkey
         }
 
