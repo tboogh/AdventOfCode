@@ -23,6 +23,14 @@ public struct Day10 {
     }
 
     public static func partTwo(input: [String]) -> Int {
+        let instructions = input.parseInstructions()
+        let processor = Processor()
+        processor.addInstructionsToTimeline(instructions: instructions)
+        let crt = Screen(width: 40, height: 6, processor: processor)
+        for _ in 0..<(40 * 6) {
+            crt.cycle()
+        }
+        crt.prettyPrint()
         return -1
     }
 }
@@ -62,6 +70,40 @@ private extension Sequence where Element == String {
 private enum Instruction {
     case noop
     case addx(Int)
+}
+
+private class Screen {
+
+    public init(width: Int, height: Int, processor: Processor) {
+        self.pixels = Array(repeating: ".", count: width * height)
+        self.width = width
+        self.processor = processor
+    }
+
+    private let processor: Processor
+    private let width: Int
+    private(set) var position: Int = 0
+    private var pixels: [String]
+
+    func cycle() {
+        let registryPosition = processor.registry
+        let registryRange = registryPosition-1...registryPosition+1
+        if registryRange.contains(position%width) {
+            pixels[position] = "#"
+        }
+        print("\(position): \(registryRange)")
+        position += 1
+        processor.performCycle()
+    }
+
+    func prettyPrint() {
+        let rows = pixels.count / width
+        for row in 0..<rows {
+            let range = row*width..<row*width+width
+            let substring = pixels[range]
+            print(substring.joined())
+        }
+    }
 }
 
 private class Processor {
