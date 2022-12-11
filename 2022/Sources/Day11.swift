@@ -7,11 +7,59 @@ public struct Day11 {
 
     public static func partOne(input: String) -> Int {
         let monkeys = input.parseToNotes()
-        return -1
+        let processor = MonkeyProcessor()
+        let inspections = processor.processRounds(monkeys: monkeys, rounds: 20, worryLevelDivisor: 3)
+        return inspections[0] * inspections[1]
     }
 
-    public static func partTwo(input: [String]) -> Int {
-        return -1
+    public static func partTwo(input: String) -> Int {
+        let monkeys = input.parseToNotes()
+        let processor = MonkeyProcessor()
+        let inspections = processor.processRounds(monkeys: monkeys, rounds: 10_000, worryLevelDivisor: 1)
+        return inspections[0] * inspections[1]
+    }
+}
+
+private class MonkeyProcessor {
+
+    func processRounds(monkeys: [Monkey], rounds: Int, worryLevelDivisor: Int) -> [Int] {
+        for _ in 0..<rounds {
+            processRound(monkeys: monkeys, worryLevelDivisor: worryLevelDivisor)
+        }
+        return monkeys.map { $0.inspections }.sorted().reversed()
+    }
+
+    func processRound(monkeys: [Monkey], worryLevelDivisor: Int) {
+        for monkey in monkeys.enumerated() {
+            print("Monkey \(monkey.offset):")
+            let results = processMonkey(monkey: monkey.element, worryLevelDivisor: worryLevelDivisor)
+            for result in results {
+                monkeys[result.monkeyIndex].addItem(item: result.item)
+            }
+        }
+    }
+
+    func processMonkey(monkey: Monkey, worryLevelDivisor: Int) -> [ProcessMonkeyResult]{
+        var results = [ProcessMonkeyResult]()
+        for item in monkey.items {
+            print("  Monkey inspects an item with a worry level of \(item)")
+            monkey.inspect()
+            monkey.operation.prettyPrint(old: item)
+            let newItemValue = monkey.operation.perform(old: item) / Int(worryLevelDivisor)
+            print("    Monkey gets bored with item. Worry level is divided by 3 to \(newItemValue).")
+            let testResult = monkey.test.performTest(value: newItemValue)
+            print("    Item with worry level \(newItemValue) is thrown to monkey \(testResult).")
+            let result = ProcessMonkeyResult(monkeyIndex: testResult, item: newItemValue)
+            results.append(result)
+        }
+        monkey.removeItems()
+        return results
+    }
+
+    struct ProcessMonkeyResult {
+
+        let monkeyIndex: Int
+        let item: Int
     }
 }
 
@@ -116,11 +164,32 @@ private extension Array where Element == String {
     }
 }
 
-private struct Monkey {
+private class Monkey {
 
-    let startingItems: [Int]
+    init(items: [Int],
+         operation: Operation,
+         test: Test) {
+        self.items = items
+        self.operation = operation
+        self.test = test
+    }
+
+    private(set) var inspections: Int = 0
+    private(set) var items: [Int]
     let operation: Operation
     let test: Test
+
+    func inspect() {
+        inspections += 1
+    }
+
+    func removeItems() {
+        items.removeAll()
+    }
+
+    func addItem(item: Int) {
+        items.append(item)
+    }
 }
 
 private extension Monkey {
@@ -150,7 +219,7 @@ private extension Monkey {
             let operation,
             let test {
             return Monkey(
-                startingItems: startingItems,
+                items: startingItems,
                 operation: operation,
                 test: test)
         }
@@ -163,6 +232,17 @@ private struct Test {
     let divisibleBy: Int
     let trueMonkey: Int
     let falseMonkey: Int
+
+    func performTest(value: Int) -> Int {
+        if value.isMultiple(of: divisibleBy) {
+            print("    Current worry level is divisible by \(divisibleBy).")
+            return trueMonkey
+        } else {
+            print("    Current worry level is not divisible by \(divisibleBy).")
+            return falseMonkey
+        }
+
+    }
 }
 
 private enum OperationValue {
@@ -178,10 +258,19 @@ private enum OperationValue {
     }
 }
 
-private enum Operator {
+private enum Operator: CustomStringConvertible {
 
     case add
     case multiplication
+
+    var description: String {
+        switch self {
+        case .add:
+            return "increases"
+        case .multiplication:
+            return "is multiplied"
+        }
+    }
 }
 
 private struct Operation {
@@ -199,6 +288,10 @@ private struct Operation {
         case .multiplication:
             return aValue * bValue
         }
+    }
+
+    func prettyPrint(old: Int) {
+        print("    Worry level \(op.description) by \(b.value(old: old).description) to \(perform(old: old)).")
     }
 }
 
