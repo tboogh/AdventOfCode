@@ -3,7 +3,7 @@ import Foundation
 
 public struct Day9 {
 
-    public static func partOne(input: [String]) -> Int {
+    public static func partOne(input: [String], printPositions: Bool = false) -> Int {
         let moves = input.parseToMoves()
 
         let tailPositions = moves
@@ -12,20 +12,25 @@ public struct Day9 {
             .first!
         let size = tailPositions.size()
         let uniqueTailPositions = Set(tailPositions)
-        tailPositions.printPositions(gridSize: size)
+        if printPositions {
+            tailPositions.printPositions(gridSize: size)
+        }
         return uniqueTailPositions.count
     }
 
-    public static func partTwo(input: [String]) -> Int {
+    public static func partTwo(input: [String], printPositions: Bool = false) -> Int {
         let moves = input.parseToMoves()
 
         let headPositions = moves
             .computeHeadPostions()
         let tailPositions = headPositions
-            .computeTailPositions(numberOfTails: 10)
+            .computeTailPositions(numberOfTails: 9)
         let size = headPositions.size()
-//        tailPositions.printPositions(gridSize: size, symbol: "#")
-        let uniqueTailPositions = Set(tailPositions)
+        if printPositions {
+            headPositions.printPositions(gridSize: size, symbol: "#")
+            tailPositions.printPositions(gridSize: size)
+        }
+        let uniqueTailPositions = Set(tailPositions.last!)
 
         return uniqueTailPositions.count
     }
@@ -81,42 +86,6 @@ private struct Position: Hashable, CustomDebugStringConvertible {
     }
 }
 
-private extension Array where Element == Position {
-
-    func computeTailPositions(numberOfTails: Int) -> [[Position]] {
-        var tailPositionsCollection = (0..<numberOfTails).map { _ in [Position(x: 0, y: 0)] }
-        for headPosition in self {
-            let position = headPosition
-            for tailIndex in 0..<numberOfTails {
-                var tailPositions = tailPositionsCollection[tailIndex]
-                var tailPosition = tailPositions.last!
-                tailPosition = tailPosition.computeNextPosition(previousPosition: position)
-                tailPositions.append(tailPosition)
-                tailPositionsCollection[tailIndex] = tailPositions
-            }
-        }
-        return tailPositionsCollection
-    }
-
-    func size() -> Size {
-        var minX = 0
-        var maxX = 0
-        var minY = 0
-        var maxY = 0
-
-        for position in self {
-            minX = Swift.min(minX, position.x)
-            maxX = Swift.max(maxX, position.x)
-            minY = Swift.min(minY, position.y)
-            maxY = Swift.max(maxY, position.y)
-        }
-        return Size(minX: minX,
-                    maxX: maxX,
-                    minY: minY,
-                    maxY: maxY)
-    }
-}
-
 private extension Position {
 
     func computeNextPosition(previousPosition: Position) -> Position {
@@ -139,6 +108,16 @@ private extension Position {
     }
 }
 
+private extension Sequence where Element == [Position] {
+
+    func printPositions(gridSize: Size) {
+
+        for position in self.enumerated() {
+            position.element.printPositions(gridSize: gridSize, symbol: "\(position.offset + 1)")
+        }
+    }
+}
+
 private extension Sequence where Element == Position {
 
     func printPositions(gridSize: Size, symbol: String = "#") {
@@ -152,6 +131,40 @@ private extension Sequence where Element == Position {
         for row in printGrid {
             print(row.joined())
         }
+    }
+
+    func computeTailPositions(numberOfTails: Int) -> [[Position]] {
+        var tailPositionsCollection = (0..<numberOfTails).map { _ in [Position(x: 0, y: 0)] }
+        for headPosition in self {
+            var position = headPosition
+            for tailIndex in 0..<numberOfTails {
+                var tailPositions = tailPositionsCollection[tailIndex]
+                var tailPosition = tailPositions.last!
+                tailPosition = tailPosition.computeNextPosition(previousPosition: position)
+                tailPositions.append(tailPosition)
+                tailPositionsCollection[tailIndex] = tailPositions
+                position = tailPosition
+            }
+        }
+        return tailPositionsCollection
+    }
+
+    func size() -> Size {
+        var minX = 0
+        var maxX = 0
+        var minY = 0
+        var maxY = 0
+
+        for position in self {
+            minX = Swift.min(minX, position.x)
+            maxX = Swift.max(maxX, position.x)
+            minY = Swift.min(minY, position.y)
+            maxY = Swift.max(maxY, position.y)
+        }
+        return Size(minX: minX,
+                    maxX: maxX,
+                    minY: minY,
+                    maxY: maxY)
     }
 }
 

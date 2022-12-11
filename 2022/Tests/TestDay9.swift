@@ -15,7 +15,7 @@ final class TestDay9: XCTestCase {
                    R 2
                    """.components(separatedBy: "\n")
 
-        let result = Day9.partOne(input: data)
+        let result = Day9.partOne(input: data, printPositions: true)
 
         XCTAssertEqual(result, 13)
     }
@@ -40,9 +40,9 @@ final class TestDay9: XCTestCase {
                    U 20
                    """.components(separatedBy: "\n")
 
-        let result = Day9.partTwo(input: data)
+        let result = Day9.partTwo(input: data, printPositions: true)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 36)
     }
 
     func testPart2_data() {
@@ -50,6 +50,6 @@ final class TestDay9: XCTestCase {
 
         let result = Day9.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 2651)
     }
 }
