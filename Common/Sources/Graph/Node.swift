@@ -1,9 +1,12 @@
-public class Node<Value: Equatable & Hashable>: Hashable {
+import Foundation
+
+public class Node<Value: Equatable & Hashable>: Hashable, Identifiable {
 
     public init(value: Value) {
         self.value = value
     }
 
+    public var id = UUID()
     public let value: Value
     public var edges: [Edge<Value>] = []
 
@@ -15,11 +18,12 @@ public class Node<Value: Equatable & Hashable>: Hashable {
         lhs.value == rhs.value
     }
 
-    public func firstParentNode() -> Node<Value>? {
-        edges.map { $0.start }.first
-    }
-
-    public var isLeafNode: Bool {
-        edges.allSatisfy { $0.end == self }
+    public func isConnected(to node: Node<Value>) -> Bool {
+        for edge in edges {
+            if edge.start == node || edge.end == node {
+                return true
+            }
+        }
+        return false
     }
 }

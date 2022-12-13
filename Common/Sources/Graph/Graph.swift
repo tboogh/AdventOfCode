@@ -18,9 +18,11 @@ public class Graph<Value: Equatable & Hashable> {
     }
 
     public func connect(node: Node<Value>, parent: Node<Value>) {
+        if parent.isConnected(to: node) { return }
         let edge = Edge(start: parent, end: node)
         parent.edges.append(edge)
-        node.edges.append(edge)
+//        print("connect \(node.value) to \(parent.value)")
+//        node.edges.append(edge)
     }
 
     public func getOrCreateNode(value: Value) -> Node<Value> {
@@ -30,9 +32,5 @@ public class Graph<Value: Equatable & Hashable> {
         let node = Node(value: value)
         nodes.formUnion([node])
         return node
-    }
-
-    func findNode(value: Value) -> Node<Value>? {
-        nodes.first(where: { $0.value == value })
     }
 }
