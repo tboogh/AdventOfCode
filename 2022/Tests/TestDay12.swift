@@ -24,11 +24,16 @@ final class TestDay12: XCTestCase {
 
     func testPart2_intro() {
         let data = """
+                   Sabqponm
+                   abcryxxl
+                   accszExk
+                   acctuvwj
+                   abdefghi
                    """.components(separatedBy: "\n")
 
         let result = Day12.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 29)
     }
 
     func testPart2_data() {
@@ -36,6 +41,6 @@ final class TestDay12: XCTestCase {
 
         let result = Day12.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 512)
     }
 }

@@ -75,11 +75,11 @@ private extension Grid {
     func findVisibleTrees(rowIndex: Int, columnIndex: Int) -> TreeHeightIndex? {
         let row = data[rowIndex]
         let value = row[columnIndex]
-        let leftValues = row.enumerated().filter { $0.offset < columnIndex }.reversed().map { $0.element }
-        let rightValues = row.enumerated().filter { $0.offset > columnIndex }.map { $0.element }
+//        let leftValues = row.enumerated().filter { $0.offset < columnIndex }.reversed().map { $0.element }
+//        let rightValues = row.enumerated().filter { $0.offset > columnIndex }.map { $0.element }
         let columnValues = data.map { $0[columnIndex] }
-        let upValues = columnValues.enumerated().filter { $0.offset < rowIndex }.reversed().map { $0.element }
-        let downValues = columnValues.enumerated().filter { $0.offset > rowIndex }.map { $0.element }
+//        let upValues = columnValues.enumerated().filter { $0.offset < rowIndex }.reversed().map { $0.element }
+//        let downValues = columnValues.enumerated().filter { $0.offset > rowIndex }.map { $0.element }
 
         let left = Array(row.enumerated().filter { $0.offset < columnIndex }.reversed())
         let right = Array(row.enumerated().filter { $0.offset > columnIndex })

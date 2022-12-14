@@ -21,8 +21,6 @@ let package = Package(
         .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.4"),
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(name: "AdventOfCodeCommon",
                 path: "Common/Sources"),
         .executableTarget(name: "Generator",
@@ -30,6 +28,9 @@ let package = Package(
                     .product(name: "CommandLineKit", package: "swift-commandlinekit")
                 ],
                 path: "Generator/Sources"),
+        .executableTarget(name: "Runner",
+                dependencies: ["AdventOfCode-2022"],
+                path: "Runner/Sources"),
         .target(
             name: "AdventOfCode-2021",
             dependencies: ["AdventOfCodeCommon"],

@@ -12,12 +12,31 @@ public struct Day12 {
         else { return -999 }
         let search = BreadthFirstSearch<GridNode>()
         let p = search.findShortestPath(from: endNode, to: startNode, in: graph)
-
-        return p?.length ?? -1
+        guard let p else {
+            return -1
+        }
+        let s = p.array.map { $0.value.value }.map { String($0) }.joined()
+        print(s)
+        return p.length + 1
     }
     
     public static func partTwo(input: [String]) -> Int {
-        return -1
+        let graph = input.parse().createGraph()
+
+        guard
+            let startNode = graph.nodes.first(where: { $0.value.value == "E" })
+        else { return -999 }
+        let endNodes = Array(graph.nodes.filter { $0.value.value == "a" })
+
+        let search = BreadthFirstSearch<GridNode>()
+        let paths = search.findPaths(from: startNode, toNearestNodeIn: endNodes, in: graph)
+        let shortestPath = paths.sorted { $0.length < $1.length }.first
+        guard let shortestPath else {
+            return -1
+        }
+        let s = shortestPath.array.map { $0.value.value }.map { String($0) }.joined()
+        print(s)
+        return shortestPath.length + 1
     }
 }
 
