@@ -1,6 +1,6 @@
 import Foundation
 
-public class Node<Value: Equatable & Hashable>: Hashable, Identifiable {
+open class Node<Value: Equatable & Hashable>: Hashable, Identifiable {
 
     public init(value: Value) {
         self.value = value
@@ -25,5 +25,11 @@ public class Node<Value: Equatable & Hashable>: Hashable, Identifiable {
             }
         }
         return false
+    }
+
+    public var parent: Node<Value>? {
+        let edge = edges.first { $0.start != self}
+        let parentNode = edge?.start
+        return parentNode
     }
 }

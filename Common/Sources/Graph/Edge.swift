@@ -1,4 +1,4 @@
-public class Edge<Value: Equatable & Hashable>: Hashable {
+open class Edge<Value: Equatable & Hashable>: Hashable {
 
     public init(start: Node<Value>, end: Node<Value>) {
         self.start = start
