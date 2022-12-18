@@ -192,6 +192,7 @@ final class TestDay13: XCTestCase {
 
         XCTAssertNotEqual(result, 6227)
         XCTAssertNotEqual(result, 6082)
+        XCTAssertNotEqual(result, 4727)
         XCTAssertEqual(result, 0)
     }
 
