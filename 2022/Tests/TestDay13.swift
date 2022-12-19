@@ -181,7 +181,6 @@ final class TestDay13: XCTestCase {
 
     func testPart1_intro() {
         let result = Day13.partOne(input: data)
-
         XCTAssertEqual(result, 13)
     }
 
@@ -193,23 +192,20 @@ final class TestDay13: XCTestCase {
         XCTAssertNotEqual(result, 6227)
         XCTAssertNotEqual(result, 6082)
         XCTAssertNotEqual(result, 4727)
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 5623)
     }
 
     func testPart2_intro() {
-        let data = """
-                   """.components(separatedBy: "\n")
-
         let result = Day13.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 140)
     }
 
     func testPart2_data() {
-        let data = loadTestData(filename: "Day13")
+        let data = loadTest(filename: "Day13")
 
         let result = Day13.partTwo(input: data)
 
-        XCTAssertEqual(result, 0)
+        XCTAssertEqual(result, 20570)
     }
 }
