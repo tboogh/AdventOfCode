@@ -14,14 +14,13 @@ public struct Day14 {
     }
 
     public static func partTwo(input: String) -> Int {
-//        let shapes = input.parseToShapes()
-//        let grid = shapes.createGrid()
-//        grid.appendRows(rows: 2)
-//        let simulation = SandSimulation(grid: grid)
-//        simulation.simulateSteps(steps: 400, fill: true)
-//        let sandCount = grid.countSand()
-//        return sandCount
-        return 0
+        let objects = input
+            .parseToObjects()
+        let simulation = SandSimulation(objects: objects)
+        simulation.simulateSteps(steps: Int.max, partTwo: true)
+
+        let sandCount = simulation.countSand()
+        return sandCount
     }
 }
 
@@ -157,7 +156,7 @@ private class SandSimulation {
     private var objects: [IntVector2: SquareType]
     private let sandStartPosition = 500
 
-    func simulateSteps(steps: Int, fill: Bool = false) {
+    func simulateSteps(steps: Int, partTwo: Bool = false) {
         let debugPrint = false
 
         let (_, maxY) = objects.verticalBounds
@@ -176,7 +175,7 @@ private class SandSimulation {
             }
             currentStep += 1
 
-            if currentSandPosition.y > maxY {
+            if currentSandPosition.y > maxY && !partTwo{
                 return
             }
 
@@ -205,6 +204,16 @@ private class SandSimulation {
                 objects[currentSandPosition] = .sand
                 currentSandPosition = IntVector2(x: 500, y: 0)
             }
+            if currentSandPosition.y == maxY + 1 &&  partTwo {
+                objects[currentSandPosition] = .sand
+                currentSandPosition = IntVector2(x: 500, y: 0)
+            }
+            if partTwo,
+               let _ = objects[IntVector2(x: 500, y: 0)] {
+                objects.printObjects()
+                return
+            }
+
         } while true
     }
 
