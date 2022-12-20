@@ -1,20 +1,10 @@
 open class Grid<T: Equatable> {
 
-    public init(from input: [[T]]) {
-        var data: [[GridNode<T>]] = []
-        for line in input.enumerated() {
-            var row = [GridNode<T>]()
-            for item in line.element.enumerated() {
-                let result = GridNode(position: GridPosition(x: item.offset, y: line.offset),
-                                      value: item.element)
-                row.append(result)
-            }
-            data.append(row)
-        }
+    public init(data: [[T]]) {
         self.data = data
     }
 
-    public var data: [[GridNode<T>]]
+    public var data: [[T]]
 
     public var width: Int {
         data.first?.count ?? 0
@@ -24,7 +14,7 @@ open class Grid<T: Equatable> {
         data.count
     }
 
-    open func neighbors(value: T, position: GridPosition) -> [(GridPosition, GridNode<T>)] {
+    open func neighbors(position: GridPosition) -> [(GridPosition, T)] {
         var x = position.x
         var y = position.y
         if x > width { x = width - 1 }
@@ -39,7 +29,7 @@ open class Grid<T: Equatable> {
         let yRange = minY...maxY
         if xRange.isEmpty || yRange.isEmpty { return [] }
 
-        var values: [(GridPosition, GridNode<T>)] = []
+        var values: [(GridPosition, T)] = []
         for x in xRange {
             for y in yRange {
                 values.append((GridPosition(x: x, y: y), data[y][x]))
@@ -49,27 +39,7 @@ open class Grid<T: Equatable> {
     }
 }
 
-extension Grid: CustomStringConvertible {
-
-    public var description: String {
-        let output = data.map { $0.map { $0.description }
-            .joined(separator: "") }
-            .joined(separator: "\n")
-        return output
-    }
-}
-
-extension Grid {
-
-    public func printNodes(visitedNodes: [GridNode<T>], symbol: String) {
-        let output = data.map { $0.map { visitedNodes.contains($0) ? symbol: "\($0.value)" }
-            .joined(separator: "") }
-            .joined(separator: "\n")
-        print(output)
-    }
-}
-
-public struct GridNode<T>: Hashable, CustomStringConvertible {
+public struct GridNode<T>: Hashable {
 
     public init(position: GridPosition,
                 value: T) {

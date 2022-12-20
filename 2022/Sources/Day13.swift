@@ -40,7 +40,7 @@ public struct Day13 {
     }
 }
 
-extension String {
+private extension String {
 
     func parse() -> [Packet] {
         let decoder = JSONDecoder()
@@ -51,7 +51,7 @@ extension String {
     }
 }
 
-extension Array where Element == Packet {
+private extension Array where Element == Packet {
 
     func orderIntoPairs() -> [PacketPair] {
         var result = [PacketPair]()
@@ -62,14 +62,14 @@ extension Array where Element == Packet {
     }
 }
 
-extension Array where Element == PacketPair {
+private extension Array where Element == PacketPair {
 
     func compare() -> [Bool] {
         map { $0.compare() }
     }
 }
 
-struct PacketPair {
+private struct PacketPair {
 
     let left: Packet
     let right: Packet
@@ -79,7 +79,7 @@ struct PacketPair {
     }
 }
 
-enum Packet: Decodable, Comparable {
+private enum Packet: Decodable, Comparable {
 
     case value(Int)
     case list([Packet])
