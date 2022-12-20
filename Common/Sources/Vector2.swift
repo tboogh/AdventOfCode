@@ -1,12 +1,16 @@
-public struct Vector2: Equatable {
+public struct Vector2<T> {
 
-    public init(x: Float, y: Float) {
+    public init(x: T, y: T) {
         self.x = x
         self.y = y
     }
     
-    public let x: Float
-    public let y: Float
+    public let x: T
+    public let y: T
+}
 
-    public static let zero = Vector2(x: 0, y: 0)
+public typealias IntVector2 = Vector2<Int>
+
+extension IntVector2: Equatable, Hashable {
+
 }

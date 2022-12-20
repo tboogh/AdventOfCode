@@ -4,154 +4,70 @@ import Foundation
 public struct Day14 {
 
     public static func partOne(input: String) -> Int {
-        let shapes = input.parseToShapes()
-        let grid = shapes.createGrid()
-        let simulation = SandSimulation(grid: grid)
+        let objects = input
+            .parseToObjects()
+        let simulation = SandSimulation(objects: objects)
         simulation.simulateSteps(steps: Int.max)
-        let sandCount = grid.countSand()
+
+        let sandCount = simulation.countSand()
         return sandCount
     }
 
     public static func partTwo(input: String) -> Int {
-        let shapes = input.parseToShapes()
-        let grid = shapes.createGrid()
-        grid.appendRows(rows: 2)
-        let simulation = SandSimulation(grid: grid)
-        simulation.simulateSteps(steps: 400, fill: true)
-        let sandCount = grid.countSand()
-        return sandCount
+//        let shapes = input.parseToShapes()
+//        let grid = shapes.createGrid()
+//        grid.appendRows(rows: 2)
+//        let simulation = SandSimulation(grid: grid)
+//        simulation.simulateSteps(steps: 400, fill: true)
+//        let sandCount = grid.countSand()
+//        return sandCount
+        return 0
     }
+}
+
+private enum SquareType {
+
+    case air
+    case ground
+    case sand
+}
+
+extension SquareType: CustomStringConvertible {
+
+    var description: String {
+        switch self {
+        case .air: return "⬛️"
+        case .ground: return "🟫"
+        case .sand: return "🟧"
+        }
+    }
+}
+
+private struct Object {
+
+    let squareType: SquareType
+    let position: IntVector2
 }
 
 private extension String {
 
-    func parseToShapes() -> [Shape] {
+    func parseToObjects() -> [IntVector2: SquareType] {
         let decoder = JSONDecoder()
-        var shapes = [Shape]()
+        var objects = [IntVector2: SquareType]()
         for line in self.lines {
             let arrayLine = "[\(line.replacingOccurrences(of: " -> ", with: ","))]"
-            print(arrayLine)
             let result = try! decoder.decode([Int].self, from: arrayLine.data(using: .utf8)!)
-            let parsedPositions = result.parse()
-            shapes.append(Shape(positions: parsedPositions))
+            let gridPositions = result.parseGridPositions()
+            let gridObjects = gridPositions.parseToObjects()
+            objects = objects.merging(gridObjects) { (_, new) in new }
         }
-        return shapes
-    }
-}
-
-private class SandSimulation {
-
-    init(grid: Grid<GridVector>,
-         sandStartPosition: Int = 500) {
-        self.grid = grid
-        self.sandStartPosition = sandStartPosition
-    }
-
-    private let grid: Grid<GridVector>
-    private let sandStartPosition: Int
-
-    func simulateSteps(steps: Int, fill: Bool = false) {
-        guard
-            let firstHorizontalElement = grid.leftMostElement(),
-            let lastVerticalElement = grid.bottomElement()
-        else { return }
-        var currentStep = 0
-        let leftStart = fill ? 0: firstHorizontalElement.position.x - 1
-        var currentSand: GridPosition = spawnSand()
-        repeat {
-            let neighbors = grid.neighbors(position: currentSand).filter { $0.1.vector != nil }
-            if neighbors.isEmpty {
-                currentSand = GridPosition(x: currentSand.x, y: currentSand.y + 1)
-            } else {
-                let lowerNeighbors = neighbors.filter { $0.1.position.y > currentSand.y }
-                let leftNeighbor = lowerNeighbors.first(where: { $0.0.x < currentSand.x })
-                let rightNeighbor = lowerNeighbors.first(where: { $0.0.x > currentSand.x })
-                let bottomNeighbor = lowerNeighbors.first(where: { $0.0.x == currentSand.x })
-
-                switch (leftNeighbor, bottomNeighbor, rightNeighbor) {
-                case (_, nil, _):
-                    currentSand = GridPosition(x: currentSand.x, y: currentSand.y + 1)
-                case (nil, _, _):
-                    currentSand = GridPosition(x: currentSand.x - 1, y: currentSand.y + 1)
-                case (_, _, nil):
-                    currentSand = GridPosition(x: currentSand.x + 1, y: currentSand.y + 1)
-                case (_, _, _):
-                    grid.data[currentSand.y][currentSand.x] = GridVector(vector: Vector2(x: 999, y: 999), position: currentSand)
-                    currentSand = spawnSand()
-                }
-            }
-            if fill {
-                if currentSand.y == lastVerticalElement.position.y + 2 {
-                    grid.data[currentSand.y][currentSand.x] = GridVector(vector: Vector2(x: 999, y: 999), position: currentSand)
-                    let startPosition = grid.data[0][500]
-                    if startPosition.vector != nil {
-                        print("Done")
-                        grid.printGrid(leftStart: leftStart, sandPosition: currentSand)
-                        return
-                    }
-                    currentSand = spawnSand()
-                }
-            } else {
-                if currentSand.y > lastVerticalElement.position.y {
-                    print("Done")
-                    grid.printGrid(leftStart: leftStart, sandPosition: currentSand)
-                    return
-                }
-            }
-            currentStep += 1
-            if currentStep >= steps {
-                grid.printGrid(leftStart: leftStart, sandPosition: currentSand)
-                return
-            }
-        } while true
-    }
-
-    func spawnSand() -> GridPosition {
-        GridPosition(x: 500, y: 0)
-    }
-}
-
-private struct GridVector: Equatable, CustomStringConvertible {
-
-    private(set) var vector: Vector2?
-    let position: GridPosition
-
-    var description: String { "" }
-
-    mutating func updateVector(vector: Vector2) {
-        self.vector = vector
-    }
-}
-
-private struct Shape {
-
-    let positions: [GridPosition]
-
-    var maxX: Int {
-        positions.map { $0.x }.max() ?? 0
-    }
-
-    var maxY: Int {
-        positions.map { $0.y }.max() ?? 0
-    }
-}
-
-private extension Array where Element == Shape {
-
-    func createGrid() -> Grid<GridVector> {
-        let grid = Grid<GridVector>(data: [[]])
-        for shape in self {
-            grid.appendShape(shape: shape)
-        }
-        guard let bottomElement = grid.bottomElement() else { return grid }
-        
-        return grid
+        return objects
     }
 }
 
 private extension Array where Element == Int {
 
-    func parse() -> [GridPosition] {
+    func parseGridPositions() -> [GridPosition] {
         var positions = [GridPosition]()
         for index in stride(from: 0, to: self.count, by: 2) {
             positions.append(GridPosition(x: self[index], y: self[index + 1]))
@@ -160,106 +76,139 @@ private extension Array where Element == Int {
     }
 }
 
-private extension Grid where T == GridVector {
+private extension Array where Element == GridPosition {
 
-    func countSand() -> Int {
-        data.flatMap { $0.filter { $0.vector?.x == 999 } }.count
-    }
-
-    func printGrid(leftStart: Int = 0, sandPosition: GridPosition) {
-        func symbol(for gridVector: GridVector, sandPosition: GridPosition) -> String {
-            if gridVector.position == sandPosition {
-                return "🟧"
-            }
-            guard let vector = gridVector.vector else { return "⬛️" }
-            if vector.x == 999 && vector.y == 999 {
-                return "🟧"
-            }
-            if vector.x == 888 && vector.y == 888 {
-                return "🟫"
-            }
-            if vector.x < 0 && vector.y < 0 {
-                return "↙️"
-            }
-            if vector.x > 0 && vector.y < 0 {
-                return "↘️"
-            }
-            if vector.x == 0 && vector.y < 0 {
-                return "⬇️"
-            }
-            return "🟪"
-        }
-
-        let rows = data.map { $0.filter { $0.position.x >= leftStart }.map { symbol(for: $0, sandPosition: sandPosition) }
-            .joined(separator: "") }
-        let output = rows
-            .joined(separator: "\n")
-        Swift.print(output)
-    }
-
-    func leftMostElement() -> GridVector? {
-        let fields = data.flatMap { $0.filter { $0.vector != nil } }
-        let smallestX = fields.sorted(by: { $0.position.x < $1.position.x }).first
-        return smallestX
-    }
-
-    func bottomElement() -> GridVector? {
-        let fields = data.flatMap { $0.filter { $0.vector != nil } }
-        let bottomY = fields.sorted(by: { $0.position.y > $1.position.y }).first
-        return bottomY
-    }
-
-    func appendShape(shape: Shape) {
-        let maxX = shape.maxX + 1
-        let maxY = shape.maxY + 1
-        let currentX = data[0].count
-        if currentX < maxX {
-            // Expand row widths
-            for index in 0..<data.count {
-                var row = data[index]
-                row.append(contentsOf: (currentX..<maxX).map { GridVector(position: GridPosition(x: $0, y: index))})
-                data[index] = row
-            }
-        }
-        let currentY = data.count
-        if currentY < maxY {
-            for y in currentY..<maxY {
-                let emptyRow = (0..<max(maxX, currentX)).map { GridVector(position: GridPosition(x: $0, y: y))}
-                data.append(emptyRow)
-            }
-        }
-
-        for index in 1..<shape.positions.count {
-            let start = shape.positions[index - 1]
-            let end = shape.positions[index]
+    func parseToObjects() -> [IntVector2: SquareType] {
+        var objects = [IntVector2: SquareType]()
+        for index in 1..<self.count {
+            let start = self[index - 1]
+            let end = self[index]
             if start.x == end.x {
                 // draw vertical
-                let minY = min(start.y, end.y)
-                let maxY = max(start.y, end.y)
+                let minY = Swift.min(start.y, end.y)
+                let maxY = Swift.max(start.y, end.y)
                 for yValue in minY...maxY {
-                    data[yValue][start.x] = GridVector(
-                        vector: Vector2(x: 888, y: 888),
-                        position: GridPosition(x: start.x, y: yValue))
+                    let position = Vector2(x: start.x, y: yValue)
+                    objects[position] = .ground
                 }
             }
             if start.y == end.y {
                 // draw horizontal
-                let minX = min(start.x, end.x)
-                let maxX = max(start.x, end.x)
+                let minX = Swift.min(start.x, end.x)
+                let maxX = Swift.max(start.x, end.x)
                 for xValue in minX...maxX {
-                    data[start.y][xValue] = GridVector(
-                        vector: Vector2(x: 888, y: 888),
-                        position: GridPosition(x: xValue, y: start.y))
+                    let position = Vector2(x: xValue, y: start.y)
+                    objects[position] = .ground
                 }
             }
         }
+        return objects
+    }
+}
+
+private extension Dictionary where Key == IntVector2, Value == SquareType {
+
+    var horizontalBounds: (Int, Int) {
+        let sortedX = self.keys.sorted(by: { $0.x < $1.x })
+        let minX = sortedX.first?.x
+        let maxX = sortedX.last?.x
+        return (minX ?? 0, maxX ?? 0)
     }
 
-    func appendRows(rows count: Int) {
-        let maxX = data[0].count
-        for yIndex in data.count..<data.count + count {
-            let emptyRow = (0..<maxX).map { GridVector(position: GridPosition(x: $0, y: yIndex))}
-            data.append(emptyRow)
+    var verticalBounds: (Int, Int) {
+        let sortedY = self.keys.sorted(by: { $0.y < $1.y })
+        let maxY = sortedY.last?.y
+        return (0, maxY ?? 0)
+    }
+
+    func printObjects() {
+
+        let (minX, maxX) = horizontalBounds
+        let (minY, maxY) = verticalBounds
+
+        let normalizedMaxY = maxY - minY
+        let normalizedMaxX = maxX - minX
+
+        var grid = [String]()
+        for y in 0..<normalizedMaxY+1 {
+            var row = ""
+            for x in 0..<normalizedMaxX+1 {
+                let position = IntVector2(x: minX + x, y: minY + y)
+                if let object = self[position] {
+                    row.append(object.description)
+                } else {
+                    row.append(SquareType.air.description)
+                }
+            }
+            grid.append(row)
         }
+
+        let output = grid.joined(separator: "\n")
+        Swift.print(output)
+    }
+}
+
+private class SandSimulation {
+
+    init(objects: [IntVector2: SquareType]) {
+        self.objects = objects
+    }
+
+    private var objects: [IntVector2: SquareType]
+    private let sandStartPosition = 500
+
+    func simulateSteps(steps: Int, fill: Bool = false) {
+        let debugPrint = false
+
+        let (_, maxY) = objects.verticalBounds
+
+        var currentStep = 0
+        var currentSandPosition: IntVector2 = IntVector2(x: 500, y: 0)
+        repeat  {
+            if debugPrint {
+                print("===== \(currentStep) =====")
+                var printObjects = objects
+                printObjects[currentSandPosition] = .sand
+                printObjects.printObjects()
+            }
+            if currentStep >= steps {
+                return
+            }
+            currentStep += 1
+
+            if currentSandPosition.y > maxY {
+                return
+            }
+
+            let nextY = currentSandPosition.y + 1
+            let leftBlockerPosition = IntVector2(x: currentSandPosition.x - 1, y: nextY)
+            let middleBlockerPosition = IntVector2(x: currentSandPosition.x, y: nextY)
+            let rightBlockerPosition = IntVector2(x: currentSandPosition.x + 1, y: nextY)
+
+            let leftBlocker = objects[leftBlockerPosition]
+            let middleBlocker = objects[middleBlockerPosition]
+            let rightBlocker = objects[rightBlockerPosition]
+
+            if [leftBlocker, middleBlocker, rightBlocker].isEmpty {
+                currentSandPosition = IntVector2(x: currentSandPosition.x, y: currentSandPosition.y + 1)
+                continue
+            }
+
+            switch (leftBlocker, middleBlocker, rightBlocker) {
+            case (_, nil, _):
+                currentSandPosition = IntVector2(x: currentSandPosition.x, y: currentSandPosition.y + 1)
+            case (nil, _, _):
+                currentSandPosition = IntVector2(x: currentSandPosition.x - 1, y: currentSandPosition.y + 1)
+            case (_, _, nil):
+                currentSandPosition = IntVector2(x: currentSandPosition.x + 1, y: currentSandPosition.y + 1)
+            case (_, _, _):
+                objects[currentSandPosition] = .sand
+                currentSandPosition = IntVector2(x: 500, y: 0)
+            }
+        } while true
+    }
+
+    func countSand() -> Int {
+        objects.values.filter { $0 == .sand}.count
     }
 }
