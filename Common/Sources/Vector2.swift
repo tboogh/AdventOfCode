@@ -11,6 +11,9 @@ public struct Vector2<T> {
 
 public typealias IntVector2 = Vector2<Int>
 
-extension IntVector2: Equatable, Hashable {
+extension IntVector2: Equatable, Hashable, CustomDebugStringConvertible {
 
+    public var debugDescription: String {
+        "(\(x), \(y))"
+    }
 }

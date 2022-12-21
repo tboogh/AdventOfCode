@@ -13,7 +13,9 @@ let package = Package(
             name: "AdventOfCode-2021",
             targets: ["AdventOfCode-2021"]),
         .library(name: "AdventOfCodeCommon",
-                 targets: ["AdventOfCodeCommon"])
+                 targets: ["AdventOfCodeCommon"]),
+        .library(name: "AdventOfCode-2022",
+                 targets: ["AdventOfCode-2022"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -23,6 +25,10 @@ let package = Package(
     targets: [
         .target(name: "AdventOfCodeCommon",
                 path: "Common/Sources"),
+        .testTarget(
+            name: "AdventOfCodeCommonTests",
+            dependencies: ["AdventOfCodeCommon"],
+            path: "Common/Tests"),
         .executableTarget(name: "Generator",
                 dependencies: [
                     .product(name: "CommandLineKit", package: "swift-commandlinekit")
