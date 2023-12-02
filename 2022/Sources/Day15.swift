@@ -7,10 +7,17 @@ public struct Day15 {
     public static func partOne(input: String, row: Int) -> Int {
         let result = input.parseSensorsAndBeacons()
             .findPositionsOnRow(row: row)
-        return result
+        return result.count
     }
 
     public static func partTwo(input: String) -> Int {
+        let result = input.parseSensorsAndBeacons()
+            .findPositionsForBeacon()
+            .uniquePositions
+
+
+//        let tf = result.map { $0.tuningFrequency }
+//            .sorted()
         return -1
     }
 }
@@ -26,6 +33,12 @@ struct Point: Hashable {
     let y: Int
 }
 
+extension Point {
+
+    var tuningFrequency: Int {
+        x * 4_000_000 + y
+    }
+}
 
 struct SensorsAndNearestBeacon {
 
@@ -43,18 +56,72 @@ extension SensorsAndNearestBeacon {
     }
 
     func findPositionsOnRow(row: Int) -> ClosedRange<Int>? {
-        print("Find positions for beacon at: \(nearestBeacon) from sensor: \(sensor)")
+//        print("Find positions for beacon at: \(nearestBeacon) from sensor: \(sensor)")
         let deltaX = manhattanDistance - abs(row - sensor.y)
         if deltaX > 0 {
             return sensor.x-deltaX...sensor.x+deltaX
         }
         return nil
     }
+
+    func findPositionsAlongPerimeter(padding: Int = 1) -> [Point] {
+        var positions = [Point]()
+        let distance = manhattanDistance+padding
+        for yValue in 0...distance {
+            let xPositive = distance - yValue
+            let yPositive = yValue%(distance+1)
+            let xNegative = -xPositive
+            let yNegative = -yPositive
+
+            let topRight = Point(x: xPositive, y: yPositive)
+            let bottomRight = Point(x: xPositive, y: yNegative)
+            let bottomLeft = Point(x: xNegative, y: yNegative)
+            let topLeft = Point(x: xNegative, y: yPositive)
+            positions.append(contentsOf: [topRight, bottomRight, bottomLeft, topLeft])
+        }
+        return positions
+    }
+}
+
+private extension Array where Element == Set<Point> {
+
+    var uniquePositions: [Point] {
+        var items = self
+        var result = Set<Point>()
+        while let next = items.popLast() {
+            if result.isEmpty {
+                result = next
+                continue
+            }
+            result = result.intersection(next)
+        }
+//        let r = Array(result)
+        return []
+    }
 }
 
 private extension Array where Element == SensorsAndNearestBeacon {
 
-    func findPositionsOnRow(row: Int) -> Int {
+    func findPositionForBeacon() -> Set<Point> {
+        var points = Set<Point>()
+        for item in self {
+            let positions = Set(item.findPositionsAlongPerimeter())
+            let possiblePositions = positions.subtracting(points)
+            points = points.union(possiblePositions)
+        }
+        return points
+    }
+
+    func findPositionsForBeacon() -> [Set<Point>] {
+        var points = [Set<Point>]()
+        for item in self {
+            let positions = Set(item.findPositionsAlongPerimeter())
+            points.append(positions)
+        }
+        return points
+    }
+
+    func findPositionsOnRow(row: Int) -> [Int] {
         var positions = Set<Int>()
         for sensorsAndNearestBeacon in self {
             if let range = sensorsAndNearestBeacon.findPositionsOnRow(row: row) {
@@ -64,7 +131,16 @@ private extension Array where Element == SensorsAndNearestBeacon {
                 positions = positions.subtracting([sensorsAndNearestBeacon.nearestBeacon.x])
             }
         }
-        return positions.count
+        return Swift.Array(positions)
+    }
+
+    func findPositionsInRowRange(range: ClosedRange<Int>) -> [Int:[Int]] {
+        var result = [Int:[Int]]()
+        for row in range {
+            let rowResult = findPositionsOnRow(row: row).sorted()
+            result[row] = rowResult
+        }
+        return result
     }
 }
 
