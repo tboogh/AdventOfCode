@@ -15,7 +15,9 @@ let package = Package(
         .library(name: "AdventOfCodeCommon",
                  targets: ["AdventOfCodeCommon"]),
         .library(name: "AdventOfCode-2022",
-                 targets: ["AdventOfCode-2022"])
+                 targets: ["AdventOfCode-2022"]),
+        .library(name: "AdventOfCode-2023",
+                 targets: ["AdventOfCode-2023"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -57,6 +59,18 @@ let package = Package(
             name: "AdventOfCode-2022Tests",
             dependencies: ["AdventOfCode-2022"],
             path: "2022/Tests",
+            resources: [
+                .process("Data")
+            ]
+        ),
+        .target(
+            name: "AdventOfCode-2023",
+            dependencies: ["AdventOfCodeCommon"],
+            path: "2023/Sources"),
+        .testTarget(
+            name: "AdventOfCode-2023Tests",
+            dependencies: ["AdventOfCode-2023"],
+            path: "2023/Tests",
             resources: [
                 .process("Data")
             ]

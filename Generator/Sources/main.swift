@@ -42,7 +42,7 @@ public struct #DAY# {
 """
 
 let testTemplate = """
-import AdventOfCode_2022
+import AdventOfCode_2023
 import XCTest
 
 final class Test#DAY#: XCTestCase {
