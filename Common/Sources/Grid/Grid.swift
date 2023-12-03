@@ -2,9 +2,21 @@ open class Grid<T: Equatable> {
 
     public init(data: [[T]]) {
         self.data = data
+        var gridNodes = [GridNode<T>]()
+        for rowIndex in 0..<data.count {
+            let row = data[rowIndex]
+            for columnIndex in 0..<row.count {
+                let item = row[columnIndex]
+                let position = GridPosition(x: columnIndex, y: rowIndex)
+                let node = GridNode(position: position, value: item)
+                gridNodes.append(node)
+            }
+        }
+        self.gridNodes = gridNodes
     }
 
-    public var data: [[T]]
+    public let data: [[T]]
+    public let gridNodes: [GridNode<T>]
 
     public var width: Int {
         data.first?.count ?? 0
